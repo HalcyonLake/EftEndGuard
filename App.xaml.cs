@@ -62,9 +62,19 @@ public partial class App : Application
         // 若已有实例在运行：请求其把主窗口从托盘恢复并前置，然后本进程直接退出。
         // 这样既能避免代理/证书/系统代理状态被两个实例争抢，也符合“点第二次 = 打开已有页面”。
         _singleInstance = new SingleInstanceGuard();
+
+        // 第二个实例点击激活时，会在后台线程触发该事件 -> 切回 UI 线程前置窗口
+        _singleInstance.ActivationRequested += () =>
+        {
+            Dispatcher.BeginInvoke(new Action(ShowMainWindow));
+        };
+
         if (!_singleInstance.TryAcquire())
         {
-            // 已运行实例会被通知前置窗口（见 SingleInstanceGuard.ActivateExistingInstance）
+            // 已有实例在运行：SingleInstanceGuard 内部已请求其前置窗口，
+            // 并弹出“程序已经在运行”的提示框（满足需求：二次打开须明确告知用户）。
+            _singleInstance.Dispose();
+            _singleInstance = null;
             Shutdown();
             return;
         }
@@ -205,7 +215,8 @@ public partial class App : Application
 
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        if (msg == SingleInstanceGuard.WmShowMainWindow)
+        // 兜底路径：第二个实例在命名事件不可用时会 PostMessage 该消息通知本实例前置窗口
+        if (msg != 0 && msg == Views.MainWindow.ShowMainWindowMessage)
         {
             // 已在 UI 线程（窗口消息即 UI 线程派发）
             ShowMainWindow();

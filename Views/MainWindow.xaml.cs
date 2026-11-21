@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Runtime.InteropServices;
+using System.Windows;
 using EftEndGuard.ViewModels;
 
 namespace EftEndGuard.Views;
@@ -20,6 +22,13 @@ public partial class MainWindow : Window
 
     /// <summary>单实例守卫用于 FindWindow 查找的固定窗口标题（需与 SingleInstanceGuard 中一致）。</summary>
     public const string MainWindowTitle = "EFT EndGuard · 战局结算守卫";
+
+    /// <summary>第二个实例兜底通知已运行实例前置窗口时使用的私有窗口消息。</summary>
+    public static readonly int ShowMainWindowMessage =
+        RegisterWindowMessage("EFT_ENDGUARD_SHOW_MAIN_EXISTING");
+
+    [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    private static extern int RegisterWindowMessage(string lpString);
 
     /// <summary>用户点击关闭按钮时最小化到托盘而非退出（真正的退出走托盘菜单 / App 退出清理）。</summary>
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)

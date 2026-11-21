@@ -1,0 +1,511 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================
+         MD3 Dark Scheme · Color Tokens
+         ============================================================ -->
+    <Color x:Key="Md3Surface">#111318</Color>
+    <Color x:Key="Md3SurfaceContainerLow">#191C22</Color>
+    <Color x:Key="Md3SurfaceContainer">#1D2026</Color>
+    <Color x:Key="Md3SurfaceContainerHigh">#282A31</Color>
+    <Color x:Key="Md3SurfaceContainerHighest">#33353C</Color>
+    <Color x:Key="Md3Outline">#434750</Color>
+    <Color x:Key="Md3OutlineVariant">#434750</Color>
+
+    <Color x:Key="Md3Primary">#A8C7FA</Color>
+    <Color x:Key="Md3OnPrimary">#062E6F</Color>
+    <Color x:Key="Md3PrimaryContainer">#004A77</Color>
+    <Color x:Key="Md3OnPrimaryContainer">#DAE2F9</Color>
+    <Color x:Key="Md3SecondaryContainer">#3E4759</Color>
+    <Color x:Key="Md3OnSecondaryContainer">#DAE2F9</Color>
+    <Color x:Key="Md3ErrorContainer">#93000A</Color>
+    <Color x:Key="Md3OnErrorContainer">#FFDAD6</Color>
+    <Color x:Key="Md3Error">#FFB4AB</Color>
+    <Color x:Key="Md3TertiaryContainer">#5B4300</Color>
+    <Color x:Key="Md3OnTertiaryContainer">#FFDF9E</Color>
+    <Color x:Key="Md3OnSurface">#E2E2E9</Color>
+    <Color x:Key="Md3OnSurfaceVariant">#C4C6D0</Color>
+
+    <!-- ============================================================
+         Brushes
+         ============================================================ -->
+    <SolidColorBrush x:Key="SurfaceBrush" Color="{StaticResource Md3Surface}"/>
+    <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="{StaticResource Md3SurfaceContainerLow}"/>
+    <SolidColorBrush x:Key="SurfaceContainerBrush" Color="{StaticResource Md3SurfaceContainer}"/>
+    <SolidColorBrush x:Key="SurfaceContainerHighBrush" Color="{StaticResource Md3SurfaceContainerHigh}"/>
+    <SolidColorBrush x:Key="SurfaceContainerHighestBrush" Color="{StaticResource Md3SurfaceContainerHighest}"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="{StaticResource Md3Outline}"/>
+    <SolidColorBrush x:Key="OutlineVariantBrush" Color="{StaticResource Md3OutlineVariant}"/>
+
+    <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Md3Primary}"/>
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="{StaticResource Md3OnPrimary}"/>
+    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="{StaticResource Md3PrimaryContainer}"/>
+    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="{StaticResource Md3OnPrimaryContainer}"/>
+    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="{StaticResource Md3SecondaryContainer}"/>
+    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="{StaticResource Md3OnSecondaryContainer}"/>
+    <SolidColorBrush x:Key="ErrorContainerBrush" Color="{StaticResource Md3ErrorContainer}"/>
+    <SolidColorBrush x:Key="OnErrorContainerBrush" Color="{StaticResource Md3OnErrorContainer}"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource Md3Error}"/>
+    <SolidColorBrush x:Key="TertiaryContainerBrush" Color="{StaticResource Md3TertiaryContainer}"/>
+    <SolidColorBrush x:Key="OnTertiaryContainerBrush" Color="{StaticResource Md3OnTertiaryContainer}"/>
+    <SolidColorBrush x:Key="OnSurfaceBrush" Color="{StaticResource Md3OnSurface}"/>
+    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="{StaticResource Md3OnSurfaceVariant}"/>
+    <SolidColorBrush x:Key="HoverRowBrush" Color="#282A31"/>
+
+    <!-- ============================================================
+         Typography
+         ============================================================ -->
+    <Style x:Key="Md3TitleLarge" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+    </Style>
+    <Style x:Key="Md3TitleMedium" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+    </Style>
+    <Style x:Key="Md3BodyMedium" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+    </Style>
+    <Style x:Key="Md3BodySmall" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+    </Style>
+    <Style x:Key="Md3LabelSmall" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Medium"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+    </Style>
+
+    <!-- ============================================================
+         Card Material (large shape, no border, tonal elevation)
+         ============================================================ -->
+    <Style x:Key="Md3Card" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerBrush}"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Margin" Value="0,0,0,14"/>
+    </Style>
+
+    <!-- ============================================================
+         Buttons · shared pill geometry
+         ============================================================ -->
+    <!-- Filled Button (Primary) -->
+    <Style x:Key="Md3FilledButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}"/>
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="24,10"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="20"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.90"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighestBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Filled Tonal Button -->
+    <Style x:Key="Md3TonalButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource OnSecondaryContainerBrush}"/>
+        <Setter Property="Background" Value="{StaticResource SecondaryContainerBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="24,10"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="20"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.90"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Small Tonal (for cert repair, chip-like) -->
+    <Style x:Key="Md3SmallTonalButton" TargetType="Button" BasedOn="{StaticResource Md3TonalButton}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Padding" Value="16,7"/>
+        <Setter Property="Height" Value="32"/>
+    </Style>
+
+    <!-- Error Filled Button -->
+    <Style x:Key="Md3ErrorButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource OnErrorContainerBrush}"/>
+        <Setter Property="Background" Value="{StaticResource ErrorContainerBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="24,10"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="20"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.90"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Outlined Button -->
+    <Style x:Key="Md3OutlinedButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="24,10"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd" Background="Transparent" CornerRadius="20"
+                            BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighestBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource SurfaceContainerHighBrush}"/>
+                            <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================
+         Outlined TextField (CornerRadius 12; focus -> 2px primary)
+         ============================================================ -->
+    <Style x:Key="Md3TextField" TargetType="TextBox">
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource PrimaryBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="12"
+                            BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Bd" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================
+         ComboBox (MD3-ish, rounded, tonal)
+         ============================================================ -->
+    <Style x:Key="Md3ComboBox" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="ToggleButton"
+                                      Focusable="False"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                      ClickMode="Press">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="Bd" Background="{StaticResource SurfaceContainerLowBrush}"
+                                            CornerRadius="12" BorderBrush="{StaticResource OutlineBrush}"
+                                            BorderThickness="1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <ContentPresenter Grid.Column="0" Margin="12,0,0,0"
+                                                              VerticalAlignment="Center"/>
+                                            <Path Grid.Column="1" Data="M0,0 L4,4 L8,0" Stroke="{StaticResource OnSurfaceVariantBrush}"
+                                                  StrokeThickness="1.5" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bd" Property="BorderBrush" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+
+                        <ContentPresenter x:Name="ContentSite" IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                          Margin="12,0,34,0" VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"/>
+
+                        <Popup x:Name="PART_Popup" AllowsTransparency="True" Placement="Bottom"
+                               IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False" PopupAnimation="Fade">
+                            <Border Background="{StaticResource SurfaceContainerHighBrush}" CornerRadius="12"
+                                    BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1"
+                                    MinWidth="{Binding ActualWidth, ElementName=ToggleButton}" Margin="0,4,0,0">
+                                <ScrollViewer MaxHeight="240">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="ComboBoxItem">
+                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+                    <Setter Property="Padding" Value="12,9"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ComboBoxItem">
+                                <Border x:Name="Bd" Background="Transparent" CornerRadius="8" Margin="4,2">
+                                    <ContentPresenter Margin="8,0" VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{StaticResource SurfaceContainerHighestBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================
+         MD3 Switch (slider) — replaces CheckBox
+         ============================================================ -->
+    <Style x:Key="Md3Switch" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal">
+                        <Grid Width="44" Height="26" VerticalAlignment="Center">
+                            <!-- Track -->
+                            <Border x:Name="Track" Background="{StaticResource SurfaceContainerHighestBrush}"
+                                    CornerRadius="13" BorderBrush="{StaticResource OutlineBrush}" BorderThickness="2"/>
+                            <!-- Thumb -->
+                            <Border x:Name="Thumb" Width="16" Height="16" CornerRadius="8"
+                                    Background="{StaticResource OnSurfaceVariantBrush}"
+                                    HorizontalAlignment="Left" Margin="6,0,0,0"/>
+                        </Grid>
+                        <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                            <Setter TargetName="Thumb" Property="Background" Value="{StaticResource OnPrimaryBrush}"/>
+                            <Setter TargetName="Thumb" Property="Width" Value="20"/>
+                            <Setter TargetName="Thumb" Property="Height" Value="20"/>
+                            <Setter TargetName="Thumb" Property="CornerRadius" Value="10"/>
+                            <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="Thumb" Property="Margin" Value="0,0,4,0"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============================================================
+         Assist Chip (status pill)
+         ============================================================ -->
+    <Style x:Key="Md3Chip" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerHighBrush}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="BorderBrush" Value="{StaticResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
+    <!-- ============================================================
+         MD3 DataGrid (clean table, hover highlight, no gridlines)
+         ============================================================ -->
+    <Style x:Key="Md3DataGridColumnHeader" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerHighestBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridColumnHeader">
+                    <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Md3DataGridCell" TargetType="DataGridCell">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGridCell">
+                    <Border Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Md3DataGridRow" TargetType="DataGridRow">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{StaticResource HoverRowBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Md3DataGrid" TargetType="DataGrid">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="SelectionUnit" Value="FullRow"/>
+        <Setter Property="FontFamily" Value="Microsoft YaHei UI"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="RowBackground" Value="Transparent"/>
+        <Setter Property="ColumnHeaderStyle" Value="{StaticResource Md3DataGridColumnHeader}"/>
+        <Setter Property="CellStyle" Value="{StaticResource Md3DataGridCell}"/>
+        <Setter Property="RowStyle" Value="{StaticResource Md3DataGridRow}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DataGrid">
+                    <Border Background="Transparent" CornerRadius="12" ClipToBounds="True">
+                        <!-- 注意：列头 + 内容区必须用 DockPanel/Grid 布局，
+                             绝不能把 ScrollContentPresenter 放进 StackPanel（会因无限高度导致行不渲染）。 -->
+                        <DockPanel>
+                            <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter"
+                                                            DockPanel.Dock="Top"/>
+                            <ScrollViewer x:Name="DG_ScrollViewer" Focusable="False"
+                                          CanContentScroll="True"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Auto">
+                                <ScrollContentPresenter/>
+                            </ScrollViewer>
+                        </DockPanel>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
+

@@ -1,0 +1,22 @@
+# ---- .NET build output ----
+bin/
+obj/
+*.user
+*.suo
+
+# ---- IDE ----
+.vs/
+.idea/
+*.sln.docstates
+
+# ---- App runtime artifacts ----
+# 运行时生成的配置与日志（不要提交）
+app.config
+logs/
+*.log
+*.pfx
+
+# ---- OS ----
+Thumbs.db
+desktop.ini
+.DS_Store

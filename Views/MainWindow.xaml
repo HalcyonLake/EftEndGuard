@@ -1,0 +1,391 @@
+﻿<Window x:Class="EftEndGuard.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="EFT EndGuard · 战局结算守卫"
+        Height="840" Width="1060"
+        MinHeight="720" MinWidth="920"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource SurfaceBrush}"
+        FontFamily="Microsoft YaHei UI"
+        Foreground="{StaticResource OnSurfaceBrush}">
+
+    <Window.Resources>
+        <!-- 修复 Md3TextField 高度与文字垂直居中裁切问题 -->
+        <Style x:Key="Md3TextField" TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource PrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="RootBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                MinHeight="{TemplateBinding MinHeight}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          HorizontalAlignment="Stretch"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource OnSurfaceVariantBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="RootBorder" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                <Setter TargetName="RootBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 同步保障 Md3ComboBox 高度与内边距一致 -->
+        <Style x:Key="Md3ComboBoxFixed" TargetType="ComboBox" BasedOn="{StaticResource Md3ComboBox}">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="FontSize" Value="13.5"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24,18,24,20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ========== Top App Bar (无边框) ========== -->
+        <Grid Grid.Row="0" Margin="4,0,4,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="EFT EndGuard" Style="{StaticResource Md3TitleLarge}"/>
+                <TextBlock Text="纯外部 L7 观测 · 仅解密目标网关 · 结算由你决定"
+                           Style="{StaticResource Md3BodySmall}" Margin="0,3,0,0"/>
+                <TextBlock Text="免责声明：本工具仅供学习参考，使用产生的任何后果与风险由使用者自行承担。"
+                           Style="{StaticResource Md3BodySmall}" Margin="0,2,0,0"
+                           Foreground="{StaticResource ErrorBrush}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <!-- Test button + Assist Chips -->
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="测试弹窗"
+                        Command="{Binding PreviewConfirmCommand}"
+                        Style="{StaticResource Md3OutlinedButton}"
+                        Height="36" Margin="0,0,12,0"
+                        ToolTip="预览结算确认弹窗样式；倒计时结束后自动关闭"/>
+                <Border Style="{StaticResource Md3Chip}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="●" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#7C8794"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsProxyRunning}" Value="True">
+                                            <Setter Property="Foreground" Value="#5FD08A"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding ProxyStatusLight}" FontSize="12"
+                                   Foreground="{StaticResource OnSurfaceBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Md3Chip}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="●" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="#7C8794"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsGameRunning}" Value="True">
+                                            <Setter Property="Foreground" Value="#E9B949"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding GameStatusLight}" FontSize="12"
+                                   Foreground="{StaticResource OnSurfaceBrush}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- ========== 上部：左控制 + 右配置 ========== -->
+        <Grid Grid.Row="1" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="336"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左：控制卡片 -->
+            <Border Grid.Column="0" Style="{StaticResource Md3Card}" Margin="0,0,14,0">
+                <StackPanel>
+                    <TextBlock Text="代理控制" Style="{StaticResource Md3TitleMedium}" Margin="2,0,0,14"/>
+
+                    <!-- Filled Button: 主开关 -->
+                    <Button Content="{Binding ToggleProxyText}"
+                            Command="{Binding ToggleProxyCommand}"
+                            Style="{StaticResource Md3FilledButton}"
+                            HorizontalContentAlignment="Center"
+                            Margin="0,0,0,12"/>
+
+                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource Md3BodySmall}"
+                               TextWrapping="Wrap" Margin="2,0,0,14"/>
+
+                    <!-- Tonal: 保存/重载 -->
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="保存配置" Command="{Binding SaveConfigCommand}"
+                                Style="{StaticResource Md3TonalButton}"/>
+                        <Button Grid.Column="2" Content="重载配置" Command="{Binding ReloadConfigCommand}"
+                                Style="{StaticResource Md3TonalButton}"/>
+                    </Grid>
+
+                    <!-- Error Filled: 强杀 / Outlined: 清理代理 -->
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="强杀游戏" Command="{Binding KillGameCommand}"
+                                Style="{StaticResource Md3ErrorButton}"/>
+                        <Button Grid.Column="2" Content="清理代理残留" Command="{Binding RestartSystemProxyCommand}"
+                                Style="{StaticResource Md3OutlinedButton}"/>
+                    </Grid>
+
+                    <!-- 证书 -->
+                    <Border Background="{StaticResource SurfaceContainerLowBrush}" CornerRadius="16"
+                            Padding="14" Margin="0,14,0,12">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,8">
+                                <TextBlock Text="根证书状态" Style="{StaticResource Md3LabelSmall}"
+                                           VerticalAlignment="Center"/>
+                                <!-- 信任状态徽章 -->
+                                <Border HorizontalAlignment="Right" CornerRadius="10" Padding="8,2">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{StaticResource ErrorContainerBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsCertificateTrusted}" Value="True">
+                                                    <Setter Property="Background" Value="#1F3A2A"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock FontSize="10" FontWeight="SemiBold">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="未信任"/>
+                                                <Setter Property="Foreground" Value="{StaticResource OnErrorContainerBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsCertificateTrusted}" Value="True">
+                                                        <Setter Property="Text" Value="已信任"/>
+                                                        <Setter Property="Foreground" Value="#7FE0A5"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+                            </Grid>
+                            <TextBlock Text="{Binding CertificateStatus}" Style="{StaticResource Md3BodySmall}"
+                                       TextWrapping="Wrap" Margin="0,0,0,10"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="一键安装 / 修复证书" Command="{Binding RepairCertificateCommand}"
+                                        Style="{StaticResource Md3SmallTonalButton}"
+                                        HorizontalAlignment="Left"/>
+                                <Button Content="卸载证书" Command="{Binding UninstallCertificateCommand}"
+                                        Style="{StaticResource Md3SmallTonalButton}"
+                                        HorizontalAlignment="Left" Margin="8,0,0,0"
+                                        ToolTip="从系统受信任根证书存储中卸载本工具根证书（用户级 + 机器级）"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 开关区 -->
+                    <CheckBox Content="启动时自动开启代理"
+                              IsChecked="{Binding Config.AutoStartProxy}"
+                              Style="{StaticResource Md3Switch}" Margin="2,2,0,10"/>
+                    <CheckBox Content="拦截时播放提示音"
+                              IsChecked="{Binding Config.PlaySoundOnIntercept}"
+                              Style="{StaticResource Md3Switch}" Margin="2,0,0,10"/>
+                    <CheckBox Content="诊断：记录全部流量（含非目标 Host）"
+                              IsChecked="{Binding Config.LogAllTraffic}"
+                              Style="{StaticResource Md3Switch}" Margin="2,0,0,10"
+                              ToolTip="排查“流量是否真的经过本工具”时开启；会记录所有经过代理的请求，仅用于诊断"/>
+
+                    <!-- 打开日志 -->
+                    <Button Content="打开日志目录" Command="{Binding OpenLogsCommand}"
+                            Style="{StaticResource Md3TonalButton}" Margin="0,4,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <!-- 右：配置卡片 -->
+            <Border Grid.Column="1" Style="{StaticResource Md3Card}">
+                <StackPanel>
+                    <TextBlock Text="拦截配置" Style="{StaticResource Md3TitleMedium}" Margin="2,0,0,14"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="16"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Row 0 -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                            <TextBlock Text="监听端口" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <TextBox Style="{StaticResource Md3TextField}"
+                                     Text="{Binding Config.ListenPort, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                            <TextBlock Text="倒计时秒数" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <TextBox Style="{StaticResource Md3TextField}"
+                                     Text="{Binding Config.CountdownSeconds, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Row 1: Target Host -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,12">
+                            <TextBlock Text="目标 Host（仅对该域名解密）" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <TextBox Style="{StaticResource Md3TextField}"
+                                     Text="{Binding Config.TargetHost, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Row 2: Intercept Path -->
+                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,12">
+                            <TextBlock Text="拦截 Path（命中即挂起）" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <TextBox Style="{StaticResource Md3TextField}"
+                                     Text="{Binding Config.InterceptPath, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Row 3: 超时动作 + 触发模式 -->
+                        <StackPanel Grid.Row="3" Grid.Column="0" Margin="0,0,0,12">
+                            <TextBlock Text="超时默认动作" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <ComboBox Style="{StaticResource Md3ComboBoxFixed}"
+                                      ItemsSource="{Binding TimeoutActionOptions}"
+                                      DisplayMemberPath="Display"
+                                      SelectedValuePath="Value"
+                                      SelectedValue="{Binding Config.TimeoutAction, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Row="3" Grid.Column="2" Margin="0,0,0,12">
+                            <TextBlock Text="触发模式" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                            <ComboBox Style="{StaticResource Md3ComboBoxFixed}"
+                                      ItemsSource="{Binding TriggerModeOptions}"
+                                      DisplayMemberPath="Display"
+                                      SelectedValuePath="Value"
+                                      SelectedValue="{Binding Config.HotkeyTriggerMode, UpdateSourceTrigger=PropertyChanged}"/>
+                        </StackPanel>
+
+                        <!-- Row 4: 允许热键 + 拒绝热键 + 长按毫秒数（三列紧凑排列） -->
+                        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="允许热键" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                                <TextBox Style="{StaticResource Md3TextField}"
+                                         Text="{Binding Config.AllowHotkey, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="拒绝 / 强杀热键" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                                <TextBox Style="{StaticResource Md3TextField}"
+                                         Text="{Binding Config.RejectHotkey, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4"
+                                        Visibility="{Binding IsHoldMode, Converter={StaticResource BoolToVis}}">
+                                <TextBlock Text="长按毫秒数（Hold）" Style="{StaticResource Md3LabelSmall}" Margin="2,0,0,6"/>
+                                <TextBox Style="{StaticResource Md3TextField}"
+                                         Text="{Binding Config.HoldDurationMs, UpdateSourceTrigger=PropertyChanged}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+
+                    <CheckBox Content="拒绝时对游戏启用防火墙出站阻断（冷却后自动解除）"
+                              IsChecked="{Binding Config.EnableFirewallBlockOnReject}"
+                              Style="{StaticResource Md3Switch}" Margin="2,10,0,0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ========== 底部：日志表格 ========== -->
+        <Border Grid.Row="2" Style="{StaticResource Md3Card}" Padding="0" Margin="0,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Grid Grid.Row="0" Margin="18,16,18,10">
+                    <TextBlock Text="最近拦截与接口观测" Style="{StaticResource Md3TitleMedium}" VerticalAlignment="Center"/>
+                    <Button Content="清空日志" Command="{Binding ClearLogsCommand}"
+                            Style="{StaticResource Md3SmallTonalButton}"
+                            HorizontalAlignment="Right"/>
+                </Grid>
+
+                <Border Grid.Row="1" Margin="18,0,18,18"
+                        Background="{StaticResource SurfaceContainerLowBrush}" CornerRadius="14" Padding="0">
+                    <TextBox x:Name="TrafficBox"
+                             Text="{Binding TrafficText, Mode=OneWay}"
+                             IsReadOnly="True"
+                             IsReadOnlyCaretVisible="False"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="{StaticResource OnSurfaceBrush}"
+                             FontFamily="Consolas, Microsoft YaHei UI"
+                             FontSize="12"
+                             Padding="12,10"
+                             TextWrapping="NoWrap"
+                             VerticalScrollBarVisibility="Auto"
+                             HorizontalScrollBarVisibility="Auto"
+                             AcceptsReturn="True"/>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
+

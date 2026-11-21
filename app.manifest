@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <assemblyIdentity version="1.0.0.0" name="EftEndGuard.app" />
+
+  <!-- 采用 asInvoker：使程序在非管理员环境下也能启动，由 App.OnStartup 检测权限并弹出“需要权限”MessageBox，
+       而不是被系统 UAC 直接拦截。真正需要管理员的行为（生成/导入根证书、呼出已运行窗口、
+       Process.Kill 终止受保护游戏进程、HKLM 级代理兜底清理）由 AdminElevationService 在使用前校验。 -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v2">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <!-- Windows 10 / 11 -->
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}" />
+    </application>
+  </compatibility>
+
+<dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+          type="win32"
+          name="Microsoft.Windows.Common-Controls"
+          version="6.0.0.0"
+          processorArchitecture="*"
+          publicKeyToken="6595b64144ccf1df"
+          language="*" />
+    </dependentAssembly>
+  </dependency>
+</assembly>
+
+

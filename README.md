@@ -116,7 +116,7 @@ dotnet build -c Release
 日志默认写入**程序目录**下的 `logs\yyyy-MM-dd.log`。
 ## 运行截图
 <img width="1268" height="906" alt="QQ_2026-11-21_21-40-41" src="https://github.com/user-attachments/assets/e0f23f60-68d3-4ff2-af19-ce852b690ed5" />
-<img width="1268" height="906" alt="QQ_2026-11-21_21-40-41" src="https://github.com/user-attachments/assets/5ccec634-b67a-47b9-8455-645a7231d00a" />
+<img width="1046" height="902" alt="A2BB4420941C9F2384BF3CDAE76A3089" src="https://github.com/user-attachments/assets/41698a43-bd81-46b4-a17f-c9e5941b5b8b" />
 <img width="440" height="217" alt="QQ_2026-11-21_21-43-18" src="https://github.com/user-attachments/assets/17931a3b-46db-4cc7-9412-e7226d347b8e" />
 
 

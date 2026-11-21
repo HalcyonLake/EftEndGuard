@@ -114,4 +114,9 @@ dotnet build -c Release
 
 首次启动会安装并信任根证书（用于解密目标域名 HTTPS），并在**程序目录**下生成配置文件 `app.config`（XML）。
 日志默认写入**程序目录**下的 `logs\yyyy-MM-dd.log`。
+## 运行截图
+<img width="1268" height="906" alt="QQ_2026-11-21_21-40-41" src="https://github.com/user-attachments/assets/e0f23f60-68d3-4ff2-af19-ce852b690ed5" />
+<img width="1268" height="906" alt="QQ_2026-11-21_21-40-41" src="https://github.com/user-attachments/assets/5ccec634-b67a-47b9-8455-645a7231d00a" />
+<img width="440" height="217" alt="QQ_2026-11-21_21-43-18" src="https://github.com/user-attachments/assets/17931a3b-46db-4cc7-9412-e7226d347b8e" />
+
 

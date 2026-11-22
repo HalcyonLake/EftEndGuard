@@ -85,6 +85,7 @@
 
 1. **零进程侵入**：仅标准网络代理 + Win32 进程管理，无 DLL 注入 / API Hook / 内存读写。
 2. **系统代理防残留（最高优先级）**：`SystemProxyGuard` 启动时快照 WinINet 配置（WinINet + 注册表双写并读回校验），
+   覆盖范围包含**局域网（LAN）、拨号上网（PPPoE 宽带连接）及虚拟宽带/VPN 连接**，确保不同上网方式下流量均经过代理；
    在正常退出、`DispatcherUnhandledException`、`AppDomain.ProcessExit`、`SessionEnding`、ConsoleCtrl 等多条路径幂等还原；
    失败时再走注册表兜底，绝不留下 `127.0.0.1` 导致断网。还会识别并清除 `ProxyServer="1"` 这类历史坏值。
 3. **仅解密目标域名**：`BeforeTunnelConnectRequest` 中仅对目标 Host 置 `DecryptSsl = true`，其余 `false` 透传，

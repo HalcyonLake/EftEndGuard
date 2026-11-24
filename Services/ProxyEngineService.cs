@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -106,6 +106,7 @@ public sealed class ProxyEngineService : IProxyEngineService
 
         server.ExceptionFunc = ex => Log("引擎异常: " + ex.Message);
         _certificateManager = server.CertificateManager;
+        EnsureCertificatePfxPath(_certificateManager);
 
         // ---- 根证书准备（用于 HTTPS 解密）----
         try
@@ -221,17 +222,11 @@ public sealed class ProxyEngineService : IProxyEngineService
     {
         // 从 CONNECT 请求本身取 host：优先 RequestUri.Host，其次 Host 头（形如 "host:443"）。
         var req = e.HttpClient.Request;
-        string host = req?.RequestUri?.Host ?? string.Empty;
-        if (string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(req?.Host))
-        {
-            var h = req!.Host!;
-            int colon = h.LastIndexOf(':');
-            host = colon > 0 ? h[..colon] : h;
-        }
+        string host = !string.IsNullOrEmpty(req?.RequestUri?.Host)
+            ? req.RequestUri.Host
+            : StripPort(req?.Host);
 
-        bool isTarget = !string.IsNullOrEmpty(host)
-            && (host.Equals(_config.TargetHost, StringComparison.OrdinalIgnoreCase)
-                || host.EndsWith("." + _config.TargetHost, StringComparison.OrdinalIgnoreCase));
+        bool isTarget = _config.MatchesTargetHost(host);
 
         // 只有目标网关解密；其余【一律原样隧道透传】，绝不 MITM 任何第三方 HTTPS
         // （否则 Steam / 浏览器等强校验证书的服务会因自签证书而连接失败）。
@@ -259,8 +254,8 @@ public sealed class ProxyEngineService : IProxyEngineService
         {
                         var request = e.HttpClient.Request;
             var uri = request.RequestUri;
-            var host = uri?.Host ?? request.Host ?? string.Empty;
-            var path = uri?.AbsolutePath ?? string.Empty;
+            var host = StripPort(uri?.Host ?? request.Host);
+            var path = uri?.AbsolutePath ?? ExtractPath(request.Url);
             var method = request.Method ?? string.Empty;
 
                         // ---- 0. 诊断日志：确认代理是否真的收到了流量（对所有方法含 CONNECT 都记录）----
@@ -273,9 +268,7 @@ public sealed class ProxyEngineService : IProxyEngineService
                 return;
 
             // 只处理目标 Host（解密后的请求）
-            var isTargetHost = host.Equals(_config.TargetHost, StringComparison.OrdinalIgnoreCase)
-                || host.EndsWith("." + _config.TargetHost, StringComparison.OrdinalIgnoreCase);
-            if (!isTargetHost)
+            if (!_config.MatchesTargetHost(host))
             {
                 // 诊断模式：把非目标流量也记录到监控列表，便于确认“流量到底有没有进来、都去了哪些 Host”。
                 // 标记为“其他/透传”，绝不参与结算判定。
@@ -314,7 +307,7 @@ public sealed class ProxyEngineService : IProxyEngineService
                         // ---- 2. 命中结算判定：必须是真实业务方法 + 路径匹配 ----
             // 仅 POST/GET/PUT/PATCH/DELETE 等实际请求参与匹配；排除 CONNECT/HEAD/OPTIONS/TRACE 等隧道或预检方法，
             // 防止把 HTTPS 隧道(CONNECT) 或预检请求误判成结算业务请求。
-            if (!IsBusinessMethod(method) || !IsInterceptPath(uri))
+            if (!IsBusinessMethod(method) || !IsInterceptPath(uri, path))
             {
                 // 心跳 / Bot / 其他 / 隧道元数据：只记录，直接透传
                 Publish(new TrafficLogEntry
@@ -569,11 +562,28 @@ public sealed class ProxyEngineService : IProxyEngineService
     // ============================================================
     // 辅助
     // ============================================================
-        private bool IsInterceptPath(Uri? uri)
+    private bool IsInterceptPath(Uri? uri, string? fallbackPath = null)
     {
-        if (uri is null) return false;
-        // Contains 匹配：确保 /client/match/local/end 与 /client/match/local/end?retry=1 都能命中
-        return uri.AbsolutePath.Contains(_config.InterceptPath, StringComparison.OrdinalIgnoreCase);
+        var target = uri?.AbsolutePath ?? fallbackPath;
+        return _config.MatchesInterceptPath(target);
+    }
+
+    private static string StripPort(string? rawHost)
+    {
+        if (string.IsNullOrWhiteSpace(rawHost)) return string.Empty;
+        var h = rawHost.Trim();
+        int colon = h.LastIndexOf(':');
+        return colon > 0 && (h.IndexOf(':') == colon || h[colon - 1] == ']') ? h[..colon] : h;
+    }
+
+    private static string ExtractPath(string? rawUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawUrl)) return string.Empty;
+        var trimmed = rawUrl.Trim();
+        if (Uri.TryCreate(trimmed, UriKind.Absolute, out var abs))
+            return abs.AbsolutePath;
+        int q = trimmed.IndexOfAny(new[] { '?', '#' });
+        return q >= 0 ? trimmed[..q] : trimmed;
     }
 
     /// <summary>是否为可参与业务拦截判定的 HTTP 方法（排除 CONNECT/HEAD/OPTIONS/TRACE 等隧道或预检方法）。</summary>
@@ -618,11 +628,12 @@ public sealed class ProxyEngineService : IProxyEngineService
         }
     }
 
-    private static string Categorize(string path)
+    private string Categorize(string path)
     {
         if (path.Contains("/keepalive", StringComparison.OrdinalIgnoreCase)) return CategoryKeepAlive;
         if (path.Contains("/bot/generate", StringComparison.OrdinalIgnoreCase)) return CategoryBot;
-        if (path.Contains("/match/local/end", StringComparison.OrdinalIgnoreCase)) return CategoryMatchEnd;
+        if (path.Contains("/match/local/end", StringComparison.OrdinalIgnoreCase)
+            || _config.MatchesInterceptPath(path)) return CategoryMatchEnd;
         return CategoryOther;
     }
 
@@ -650,18 +661,50 @@ public sealed class ProxyEngineService : IProxyEngineService
     {
         try { _proxyServer?.Dispose(); } catch { }
         _endPoint = null;
+        _certificateManager = null;
         _proxyServer = null;
     }
 
     // ============================================================
     // 根证书状态 / 修复
     // ============================================================
+    private static void EnsureCertificatePfxPath(Titanium.Web.Proxy.Network.CertificateManager cm)
+    {
+        if (string.IsNullOrEmpty(cm.PfxFilePath))
+            cm.PfxFilePath = System.IO.Path.Combine(AppContext.BaseDirectory, "rootCert.pfx");
+    }
+
+    /// <summary>
+    /// 复用引擎当前的 CertificateManager，或在引擎未启动时创建临时 ProxyServer 并确保释放。
+    /// </summary>
+    private T WithCertificateManager<T>(Func<Titanium.Web.Proxy.Network.CertificateManager, T> action)
+    {
+        if (_certificateManager is not null)
+        {
+            EnsureCertificatePfxPath(_certificateManager);
+            return action(_certificateManager);
+        }
+
+        using var tempServer = new ProxyServer();
+        var cm = tempServer.CertificateManager;
+        EnsureCertificatePfxPath(cm);
+        return action(cm);
+    }
+
     public bool CheckCertificateTrusted()
     {
         try
         {
-            var cm = _certificateManager ?? new ProxyServer().CertificateManager;
-            IsCertificateTrusted = cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
+            IsCertificateTrusted = WithCertificateManager(cm =>
+            {
+                // 启动时尚未 StartAsync，必须先从磁盘加载 rootCert.pfx；
+                // 且 LoadRootCertificate() 仅返回证书对象，不会自动赋值给 cm.RootCertificate。
+                cm.RootCertificate ??= cm.LoadRootCertificate();
+                if (cm.RootCertificate is null)
+                    return false;
+
+                return cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
+            });
             return IsCertificateTrusted;
         }
         catch (Exception ex)
@@ -678,10 +721,12 @@ public sealed class ProxyEngineService : IProxyEngineService
         {
             try
             {
-                var cm = _certificateManager ?? new ProxyServer().CertificateManager;
-                // EnsureRootCertificate(userTrust, machineTrust, trustAsAdmin)：以管理员身份重新安装并信任到机器级
-                cm.EnsureRootCertificate(true, true, true);
-                var trusted = cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
+                var trusted = WithCertificateManager(cm =>
+                {
+                    // EnsureRootCertificate(userTrust, machineTrust, trustAsAdmin)：以管理员身份重新安装并信任到机器级
+                    cm.EnsureRootCertificate(true, true, true);
+                    return cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
+                });
                 IsCertificateTrusted = trusted;
                 RaiseStatus(trusted ? "根证书已重新安装并受系统信任" : "根证书安装后仍未受信任");
                 Log("RepairCertificate -> trusted=" + trusted);
@@ -697,7 +742,7 @@ public sealed class ProxyEngineService : IProxyEngineService
         });
     }
 
-        public Task<bool> UninstallCertificateAsync()
+    public Task<bool> UninstallCertificateAsync()
     {
         return Task.Run(() =>
         {
@@ -709,36 +754,42 @@ public sealed class ProxyEngineService : IProxyEngineService
                 catch (Exception ex) { Log("卸载证书前停止代理异常: " + ex.Message); }
             }
 
-            var cm = _certificateManager ?? new ProxyServer().CertificateManager;
-
-            Log("开始卸载根证书：" + (cm.RootCertificateName ?? "(?)"));
-
-            // 先尽力卸载机器级（需管理员），再卸载用户级；两者相互独立，逐一容错。
-            try
+            bool stillTrusted = WithCertificateManager(cm =>
             {
-                var ok = cm.RemoveTrustedRootCertificateAsAdmin(true);
-                Log("卸载机器级根证书 -> " + (ok ? "成功" : "未成功/未找到"));
-            }
-            catch (Exception ex) { Log("卸载机器级根证书异常: " + ex.Message); }
+                // 若启动后尚未开代理直接卸载，需先加载 rootCert.pfx，否则 RootCertificate 为 null
+                cm.RootCertificate ??= cm.LoadRootCertificate();
 
-            try
-            {
-                // machineTrusted=false：仅针对用户级存储执行卸载
-                cm.RemoveTrustedRootCertificate(false);
-                Log("卸载用户级根证书 -> 已执行");
-            }
-            catch (Exception ex) { Log("卸载用户级根证书异常: " + ex.Message); }
+                Log("开始卸载根证书：" + (cm.RootCertificateName ?? "(?)"));
 
-            // 回读实际残留状态
-            bool stillTrusted;
-            try
-            {
-                stillTrusted = cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
-            }
-            catch
-            {
-                stillTrusted = false;
-            }
+                // 先尽力卸载机器级（需管理员），再卸载用户级；两者相互独立，逐一容错。
+                try
+                {
+                    var ok = cm.RemoveTrustedRootCertificateAsAdmin(true);
+                    Log("卸载机器级根证书 -> " + (ok ? "成功" : "未成功/未找到"));
+                }
+                catch (Exception ex) { Log("卸载机器级根证书异常: " + ex.Message); }
+
+                try
+                {
+                    // machineTrusted=false：仅针对用户级存储执行卸载
+                    cm.RemoveTrustedRootCertificate(false);
+                    Log("卸载用户级根证书 -> 已执行");
+                }
+                catch (Exception ex) { Log("卸载用户级根证书异常: " + ex.Message); }
+
+                // 回读实际残留状态
+                if (cm.RootCertificate is null)
+                    return false;
+
+                try
+                {
+                    return cm.IsRootCertificateMachineTrusted() || cm.IsRootCertificateUserTrusted();
+                }
+                catch
+                {
+                    return false;
+                }
+            });
 
             IsCertificateTrusted = stillTrusted;
             RaiseStatus(stillTrusted

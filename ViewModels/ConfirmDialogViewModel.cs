@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Threading;
@@ -33,7 +33,7 @@ public sealed class ConfirmDialogViewModel : INotifyPropertyChanged
     {
         _request = request;
         _config = config;
-        _remainingSeconds = Math.Max(1, config.CountdownSeconds);
+        _remainingSeconds = Math.Clamp(config.CountdownSeconds, 5, 30);
 
         _timer = new DispatcherTimer(DispatcherPriority.Normal)
         {

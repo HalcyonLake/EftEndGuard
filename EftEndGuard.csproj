@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -13,10 +13,16 @@
     <Version>1.0.0</Version>
     <Product>EFT EndGuard</Product>
     <Company>LocalTooling</Company>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <NoWarn>$(NoWarn);NU1603</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+    <Resource Include="Static\fireSound.wav" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Titanium.Web.Proxy" Version="3.2.3" />

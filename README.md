@@ -1,10 +1,17 @@
-﻿# EFT EndGuard · 战局结算守卫
+# EFT EndGuard · 战局结算守卫
 
-轻量级本地 HTTPS 流量观测与战局结算确认工具（C# / .NET 8 / WPF）。
+[![C#](https://img.shields.io/badge/C%23-12-512BD4?style=flat-square&logo=csharp&logoColor=white)](https://learn.microsoft.com/dotnet/csharp/)
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![WPF](https://img.shields.io/badge/UI-WPF-0078D4?style=flat-square&logo=windows&logoColor=white)](https://learn.microsoft.com/dotnet/desktop/wpf/)
+[![Titanium.Web.Proxy](https://img.shields.io/badge/Proxy-Titanium.Web.Proxy%203.2.3-2E7D32?style=flat-square)](https://github.com/justcoding121/Titanium-Web-Proxy)
+[![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)](https://www.microsoft.com/windows)
+[![GitHub](https://img.shields.io/badge/GitHub-HalcyonLake%2FEftEndGuard-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/HalcyonLake/EftEndGuard)
+
+轻量级本地 HTTPS 流量观测与战局结算确认工具。
 
 ## 原理（纯外部 L7，零进程侵入）
 
-作为本地显式代理运行，仅对 `gw-pve.escapefromtarkov.com` 开启 SSL 解密，其余系统流量全部透传。
+作为本地显式代理运行，仅对 `gw-pve.escapefromtarkov`（默认不限顶级域名后缀，自动兼容 `.com`、俄服 `.ru` 等任意后缀，可手动修改，并支持 `*` 通配与逗号分隔多域名）开启 SSL 解密，其余系统流量全部透传。
 当捕获 `POST /client/match/local/end`（含 `?retry=1` 等变体，使用 `Contains` 匹配）时：
 
 - **卡包**：请求在 `BeforeRequest` 中挂起（不返回、不失败），弹出置顶确认框（倒计时 + 提示音 + 临时抢焦点）。
@@ -66,8 +73,9 @@
 
 ## 技术栈与包
 
-- 目标框架：`net8.0-windows`（WPF + WinForms 托盘）
-- `Titanium.Web.Proxy` **3.2.3**（NuGet 上唯一带 `net8.0` 目标、且可在 net8 下正常使用的版本；5.x 需要 .NET 10）
+- 编程语言：[`C#`](https://learn.microsoft.com/dotnet/csharp/)
+- 目标框架：[`net8.0-windows`](https://dotnet.microsoft.com/download/dotnet/8.0)（[`WPF`](https://learn.microsoft.com/dotnet/desktop/wpf/) + [WinForms](https://learn.microsoft.com/dotnet/desktop/winforms/) 托盘）
+- [`Titanium.Web.Proxy`](https://github.com/justcoding121/Titanium-Web-Proxy) **3.2.3**（NuGet 上唯一带 `net8.0` 目标、且可在 net8 下正常使用的版本；5.x 需要 .NET 10）
 - `app.manifest`：`asInvoker`（在非管理员环境也能启动并弹出友好提示，见下方「安全红线」）
 
 ## 架构分层
@@ -113,8 +121,29 @@ dotnet build -c Release
 # 以管理员身份运行 bin\Release\net8.0-windows\EftEndGuard.exe
 ```
 
-首次启动会安装并信任根证书（用于解密目标域名 HTTPS），并在**程序目录**下生成配置文件 `app.config`（XML）。
-日志默认写入**程序目录**下的 `logs\yyyy-MM-dd.log`。
+首次使用点击「启动代理」或「一键安装 / 修复证书」时，会在**程序目录**下生成 `rootCert.pfx` 并自动安装、信任根证书（用于解密目标域名 HTTPS），同时生成配置文件 `app.config`（XML）；日志默认写入**程序目录**下的 `logs\yyyy-MM-dd.log`。
+
+### 已测试兼容的加速器（非广告）
+
+以下加速器已在本地代理链路下实际测试通过（仅作兼容性记录，**非任何形式广告推广**）：
+
+- **雷神加速器**
+- **网易 UU 加速器**
+
+> 使用建议：请先开启加速器并完成加速，再启动本工具代理，最后启动游戏（窗口化 / 全屏窗口模式）。
+
+### 日常使用与清理说明
+
+1. **日常启动与停止**
+   - **启动**：确认加速器与游戏环境就绪后点击「启动代理」，工具会自动完成 **根证书检查/安装 → 启动本地代理 → 设置系统代理** 全部步骤。
+   - **停止**：点击「停止代理」即可停掉监听，并**自动按启动前快照还原系统代理**（含 LAN 与拨号/VPN 连接，以及临时防火墙规则），日常使用无需额外点「清理代理残留」。
+2. **不再使用 / 彻底清理**
+   - 点击「卸载证书」：若代理仍在运行会**自动先停止代理并还原系统代理**，随后从当前用户与本机受信任根证书存储中卸载本工具根证书。
+   - 点击「清理代理残留」：**异常兜底按钮**（仅在程序意外崩溃、强杀导致系统仍残留 `127.0.0.1` 代理无法上网时使用）。注意该操作会强制把系统里指向 `127.0.0.1` 的代理清为直连，若你同时开着其他本地端口代理软件也会被一并关闭。
+   - 如需彻底移除本地文件，卸载证书并退出后直接删除程序目录（含 `rootCert.pfx`、`app.config`、`logs\`）即可。
+3. **关于证书重复安装**
+   - 同一程序目录下会复用 `rootCert.pfx`，且 Windows 证书存储按指纹去重；多次点击「启动代理」或「一键安装 / 修复证书」**不会重复堆叠安装**多份相同证书（仅当删除 `rootCert.pfx` 或更换新目录重新生成新证书时，才会产生新指纹的证书）。
+
 ## 运行截图
 <img width="1268" height="906" alt="QQ_2026-11-21_21-40-41" src="https://github.com/user-attachments/assets/e0f23f60-68d3-4ff2-af19-ce852b690ed5" />
 <img width="1046" height="902" alt="A2BB4420941C9F2384BF3CDAE76A3089" src="https://github.com/user-attachments/assets/41698a43-bd81-46b4-a17f-c9e5941b5b8b" />

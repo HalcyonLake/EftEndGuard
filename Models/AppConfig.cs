@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace EftEndGuard.Models;
 
@@ -11,7 +12,7 @@ namespace EftEndGuard.Models;
 public sealed class AppConfig : INotifyPropertyChanged
 {
     private int _listenPort = 8008;
-    private string _targetHost = "gw-pve.escapefromtarkov.com";
+    private string _targetHost = "gw-pve.escapefromtarkov";
     private string _interceptPath = "/client/match/local/end";
     private int _countdownSeconds = 15;
     private InterceptDecision _timeoutAction = InterceptDecision.AllowUpload;
@@ -103,10 +104,17 @@ public sealed class AppConfig : INotifyPropertyChanged
     public string? Validate()
     {
         if (ListenPort is < 1 or > 65535) return "监听端口必须在 1-65535 之间。";
-        if (string.IsNullOrWhiteSpace(TargetHost)) return "目标 Host 不能为空。";
-        if (string.IsNullOrWhiteSpace(InterceptPath)) return "拦截 Path 不能为空。";
-        if (!InterceptPath.StartsWith('/')) return "拦截 Path 必须以 / 开头。";
-        if (CountdownSeconds is < 3 or > 300) return "倒计时秒数建议在 3-300 之间。";
+        var hostTokens = ParseTargetHostTokens(TargetHost);
+        if (hostTokens.Length == 0) return "目标 Host 不能为空。";
+        foreach (var token in hostTokens)
+        {
+            if (token.Replace("*", "").Replace(".", "").Length == 0)
+                return "目标 Host 通配范围过大，请指定具体的域名规则（如 gw-pve.escapefromtarkov）。";
+        }
+        var trimmedPath = InterceptPath?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedPath)) return "拦截 Path 不能为空。";
+        if (!trimmedPath.StartsWith('/')) return "拦截 Path 必须以 / 开头。";
+        if (CountdownSeconds is < 5 or > 30) return "倒计时秒数必须在 5-30 之间。";
         if (string.IsNullOrWhiteSpace(TargetProcessName)) return "目标进程名不能为空。";
         if (HoldDurationMs is < 100 or > 5000) return "长按毫秒数必须在 100-5000 之间。";
         if (string.IsNullOrWhiteSpace(AllowHotkey)) return "允许热键不能为空。";
@@ -116,6 +124,87 @@ public sealed class AppConfig : INotifyPropertyChanged
         if (EnableFirewallBlockOnReject && string.IsNullOrWhiteSpace(FirewallRuleName))
             return "启用防火墙阻断时，规则名不能为空。";
         return null;
+    }
+
+    /// <summary>
+    /// 判断请求 Host 是否命中目标解密规则。
+    /// 支持：
+    /// 1) 无顶级域名后缀匹配（如 gw-pve.escapefromtarkov 自动匹配 .com / .ru 等任意后缀）；
+    /// 2) 精确匹配与前缀子域名匹配（如 escapefromtarkov.com）；
+    /// 3) * 通配符与逗号/分号分隔多域名。
+    /// </summary>
+    public bool MatchesTargetHost(string? host)
+    {
+        if (string.IsNullOrWhiteSpace(host)) return false;
+
+        var normalizedHost = host.Trim();
+        int colon = normalizedHost.LastIndexOf(':');
+        if (colon > 0 && (normalizedHost.IndexOf(':') == colon || normalizedHost[colon - 1] == ']'))
+            normalizedHost = normalizedHost[..colon];
+        normalizedHost = normalizedHost.TrimEnd('.');
+        if (normalizedHost.Length == 0) return false;
+
+        foreach (var token in ParseTargetHostTokens(TargetHost))
+        {
+            if (token.Contains('*'))
+            {
+                var pattern = "^" + Regex.Escape(token).Replace("\\*", "[a-z0-9.-]*") + "$";
+                if (Regex.IsMatch(normalizedHost, pattern, RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
+                    return true;
+            }
+            else
+            {
+                var cleanToken = token.TrimEnd('.');
+                if (cleanToken.Length == 0) continue;
+
+                if (normalizedHost.Equals(cleanToken, StringComparison.OrdinalIgnoreCase)
+                    || normalizedHost.EndsWith("." + cleanToken, StringComparison.OrdinalIgnoreCase)
+                    || normalizedHost.StartsWith(cleanToken + ".", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// 判断请求路径是否命中拦截 Path（支持完整 URL 或相对路径，忽略域名/顶级域名差异，兼容 ?retry=1 等查询参数）。
+    /// 支持多个 Path 以逗号或分号分隔。
+    /// </summary>
+    public bool MatchesInterceptPath(string? pathOrUrl)
+    {
+        if (string.IsNullOrWhiteSpace(pathOrUrl)) return false;
+
+        var tokens = ParseTargetHostTokens(InterceptPath);
+        if (tokens.Length == 0) return false;
+
+        string path = pathOrUrl.Trim();
+        if (Uri.TryCreate(path, UriKind.Absolute, out var absUri))
+        {
+            path = absUri.AbsolutePath;
+        }
+        else
+        {
+            int q = path.IndexOfAny(new[] { '?', '#' });
+            if (q >= 0) path = path[..q];
+        }
+
+        foreach (var token in tokens)
+        {
+            if (path.Contains(token, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static string[] ParseTargetHostTokens(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return Array.Empty<string>();
+        return raw.Split(new[] { ',', ';', ' ', '\t', '\r', '\n' },
+            StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     /// <summary>规范化：去掉进程名可能的 .exe 后缀。</summary>

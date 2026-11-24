@@ -1,6 +1,8 @@
-﻿using System;
+using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Navigation;
 using EftEndGuard.ViewModels;
 
 namespace EftEndGuard.Views;
@@ -52,6 +54,23 @@ public partial class MainWindow : Window
     {
         _allowClose = true;
         Close();
+    }
+
+    private void OnOpenProjectLink(object sender, RequestNavigateEventArgs e)
+    {
+        e.Handled = true;
+        if (e.Uri.Scheme != Uri.UriSchemeHttps) return;
+        try
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri)
+            {
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine("[MainWindow] Open GitHub link failed: " + ex.Message);
+        }
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.IO;
 using System.Media;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -142,7 +143,7 @@ public partial class ConfirmDialogWindow : Window
         PositionTopCenter();
 
         // 提示音
-        try { SystemSounds.Exclamation.Play(); } catch { }
+        PlayAlertSound();
 
         // 临时抢焦点：把弹窗激活并置于最前（可覆盖全屏/独占全屏画面）。
         // 结算时对局已结束，游戏无需键盘输入，抢焦点是安全的。
@@ -168,6 +169,47 @@ public partial class ConfirmDialogWindow : Window
         _refocusTimer.Start();
 
         _vm.StartCountdown();
+    }
+
+    private static SoundPlayer? _sharedAlertPlayer;
+
+    /// <summary>播放 Static/fireSound.wav 提示音（内存预加载直放）；失败时回退系统提示音。</summary>
+    private static void PlayAlertSound()
+    {
+        try
+        {
+            if (_sharedAlertPlayer is null)
+            {
+                using var stream = OpenAlertSoundStream();
+                if (stream is null)
+                {
+                    SystemSounds.Exclamation.Play();
+                    return;
+                }
+
+                var player = new SoundPlayer(stream);
+                player.Load();
+                _sharedAlertPlayer = player;
+            }
+
+            _sharedAlertPlayer.Play();
+        }
+        catch
+        {
+            try { SystemSounds.Exclamation.Play(); } catch { }
+        }
+    }
+
+    private static Stream? OpenAlertSoundStream()
+    {
+        // 1. 优先读取程序目录旁 Static\fireSound.wav（支持外部直接替换音效文件）
+        var localPath = Path.Combine(AppContext.BaseDirectory, "Static", "fireSound.wav");
+        if (File.Exists(localPath))
+            return File.OpenRead(localPath);
+
+        // 2. 直接读取内嵌 WPF Resource 流（无需写临时文件）
+        var info = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/Static/fireSound.wav"));
+        return info?.Stream;
     }
 
     /// <summary>启动防抖静默期。未武装时忽略热键，静默期结束后 Arm()。</summary>

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="rimGrad" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0%" stop-color="#CEE5FF"/>
+      <stop offset="50%" stop-color="#7CB2FC"/>
+      <stop offset="100%" stop-color="#366ED4"/>
+    </linearGradient>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#21293A"/>
+      <stop offset="100%" stop-color="#0E121A"/>
+    </linearGradient>
+    <radialGradient id="centerGlow" cx="50%" cy="45%" r="35%">
+      <stop offset="0%" stop-color="#4686EE" stop-opacity="0.28"/>
+      <stop offset="100%" stop-color="#4686EE" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="amberGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFE498"/>
+      <stop offset="100%" stop-color="#E8A524"/>
+    </linearGradient>
+  </defs>
+  <!-- Outer Shield Rim -->
+  <path d="M512 92 L820 116 L888 186 L873 482 Q783 724 512 914 Q241 724 151 482 L136 186 L204 116 Z"
+        fill="url(#rimGrad)"/>
+  <!-- Inner Slate Body -->
+  <path d="M512 128 L799 150 L854 215 L841 487 Q757 704 512 868 Q267 704 183 487 L170 215 L225 150 Z"
+        fill="url(#bodyGrad)"/>
+  <path d="M512 128 L799 150 L854 215 L841 487 Q757 704 512 868 Q267 704 183 487 L170 215 L225 150 Z"
+        fill="url(#centerGlow)"/>
+  <!-- Subtle Inner Bevel -->
+  <path d="M512 158 L778 178 L824 232 L812 486 Q737 682 512 836 Q287 682 212 486 L200 232 L246 178 Z"
+        fill="none" stroke="#A8C7FA" stroke-opacity="0.16" stroke-width="5"/>
+  <!-- Tactical Optical Reticle Arcs -->
+  <path d="M388 328 A186 186 0 0 0 388 604" fill="none" stroke="#94C0FF" stroke-opacity="0.72" stroke-width="18" stroke-linecap="butt"/>
+  <path d="M636 328 A186 186 0 0 1 636 604" fill="none" stroke="#94C0FF" stroke-opacity="0.72" stroke-width="18" stroke-linecap="butt"/>
+  <line x1="290" y1="466" x2="328" y2="466" stroke="#BAD6FF" stroke-opacity="0.88" stroke-width="14"/>
+  <line x1="696" y1="466" x2="734" y2="466" stroke="#BAD6FF" stroke-opacity="0.88" stroke-width="14"/>
+  <!-- Pause / Hold Guard Pillars -->
+  <rect x="404" y="342" width="76" height="248" rx="22" fill="url(#amberGrad)"/>
+  <rect x="544" y="342" width="76" height="248" rx="22" fill="url(#amberGrad)"/>
+</svg>

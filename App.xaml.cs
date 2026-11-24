@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -142,6 +142,27 @@ public partial class App : Application
     // ============================================================
     // 托盘
     // ============================================================
+    private Icon? _customTrayIcon;
+
+    private static Icon? LoadCustomTrayIcon()
+    {
+        try
+        {
+            var info = GetResourceStream(new Uri("pack://application:,,,/Assets/app.ico"));
+            if (info?.Stream is not null)
+            {
+                using var stream = info.Stream;
+                return new Icon(stream, WinForms.SystemInformation.SmallIconSize);
+            }
+        }
+        catch (Exception ex)
+        {
+            Trace.WriteLine("[App] Load tray icon failed: " + ex);
+        }
+
+        return null;
+    }
+
     private void CreateTrayIcon()
     {
         var menu = new WinForms.ContextMenuStrip();
@@ -164,10 +185,11 @@ public partial class App : Application
         menu.Items.Add(new WinForms.ToolStripSeparator());
         menu.Items.Add(exitItem);
 
+        _customTrayIcon = LoadCustomTrayIcon();
         _trayIcon = new WinForms.NotifyIcon
         {
             Text = "EFT EndGuard · 战局结算守卫",
-            Icon = SystemIcons.Shield,
+            Icon = _customTrayIcon ?? SystemIcons.Shield,
             Visible = true,
             ContextMenuStrip = menu,
         };
@@ -247,6 +269,8 @@ public partial class App : Application
 
         try { _trayIcon?.Dispose(); } catch { }
         _trayIcon = null;
+        try { _customTrayIcon?.Dispose(); } catch { }
+        _customTrayIcon = null;
 
         try { _engine?.Dispose(); } catch { }
         try { _proxyGuard?.Dispose(); } catch { }
